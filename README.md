@@ -65,22 +65,19 @@ the running v2 interpreter as its compiler base.
 Building clears `ImageDir` and resets `ShowTraytip` in the local INI so the next
 launch prompts for an image folder. Other settings are retained.
 
-## Checks
+## Release ZIP
 
-Run these scripts with AutoHotkey v2:
+Run `Release.ahk` with AutoHotkey v2 to compile the app and create
+`Release\wallpaper-randomizer.zip`. ZIP creation uses Windows PowerShell.
+An existing release ZIP is replaced only after the new archive is created.
 
-- `Test.ahk` checks deterministic rescans, additions and deletions, complete
-  cycles, shuffled navigation, image conversion, intervals, pause,
-  configuration, menus, startup shortcuts, and the hotkey dialog.
-- `TestCompiled.ahk` checks the built executable's first-run folder picker and
-  clean exit when setup is cancelled. Run `Compile.ahk` first.
-
-The checks use temporary fixtures and do not change your desktop wallpaper or
-application settings. The compiled check briefly opens the folder picker.
+The ZIP contains `Wallpaper Randomizer.exe`, `Wallpaper Randomizer.ini`,
+`topng.exe`, `README.md`, `CHANGELOG.md`, and `LICENSE` at its top level.
+The INI comes from the local build, so review its settings before distributing.
 
 ## History and credits
 
-See [CHANGELOG.md](CHANGELOG.md) for release history and unreleased changes.
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 Created by Danny Ben Shitrit ([Sector-Seven](https://sector-seven.com/)).
 Contributions by [Ashus](http://ashus.ashus.net/).

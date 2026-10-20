@@ -11,7 +11,7 @@ if A_IsCompiled || A_LineFile = A_ScriptFullPath {
 }
 
 class WallpaperRandomizer {
-  VersionString := "0.40"
+  VersionString := "0.50"
   NameString := "Wallpaper Randomizer"
   AuthorString := "Danny Ben Shitrit (Sector-Seven)"
   Images := []

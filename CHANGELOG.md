@@ -1,16 +1,18 @@
 # Changelog
 
-## Unreleased
+## 0.50 - 2026-10-20
 
+- Replaced the original icon with an orange sunrise landscape, with sizes for the system tray and Explorer.
 - Discover added and deleted images by rescanning the folder and subfolders before every automatic or manual wallpaper change.
 - Keep the shuffled order stable for unchanged files using one random seed per launch.
 - Follow the current image after file-list changes; fall back to the first image if it was deleted.
-- Added checks for stable scan order, complete cycles without repeats, file additions and deletions, and empty-folder recovery.
+- Verified stable scan order, complete cycles without repeats, file additions and deletions, and empty-folder recovery.
 - Migrated the application and build script to AutoHotkey v2.
 - Preserved the existing shuffled-list navigation, tray controls, hotkeys, and INI settings.
-- Added source and compiled-executable checks for the migration.
+- Verified the migration with source and compiled-executable checks.
 - Converted the readme to Markdown and moved revision history into this changelog.
 - Updated homepage links to https://sector-seven.com.
+- Added Release.ahk to compile the application and package the executable, configuration, converter, documentation, and license into a ZIP.
 
 ## 0.40 - 2011-07-05
 
