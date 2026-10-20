@@ -1,10 +1,10 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
-; Wallpaper Randomizer - Danny Ben Shitrit (Sector-Seven), 2011
+; Wallpaper Randomizer - Danny Ben Shitrit (Sector-Seven)
 ; Homepage: https://sector-seven.com
 ; Contributors: Ashus - http://ashus.ashus.net/
-; A shuffled list is built once per launch; Next/Previous wrap around it.
+; Rescan on each change; one seed per launch keeps unchanged files in order.
 if A_IsCompiled || A_LineFile = A_ScriptFullPath {
   Persistent()
   WallpaperRandomizer().Start()
@@ -18,7 +18,7 @@ class WallpaperRandomizer {
   SelectedImageIndex := 0
   SelectedImage := ""
   InTheMiddle := false
-  FirstRun := true
+  ShuffleSeed := Random(1, 0xFFFFFFFF)
   Loading := false
 
   __New(iniFile := "") {
@@ -166,22 +166,26 @@ class WallpaperRandomizer {
       return
     this.InTheMiddle := true
     try {
-      if this.FirstRun {
-        menuItems := ["Refresh Interval", "Pause", "About " this.NameString "...", "Select Image Folder...", "Run " this.NameString " on Startup", "Customize Hotkeys"]
-        if this.HotkeysEnabled
-          menuItems.Push(this.NextMenuItem, this.PrevMenuItem)
+      menuItems := ["Refresh Interval", "Pause", "About " this.NameString "...", "Select Image Folder...", "Run " this.NameString " on Startup", "Customize Hotkeys"]
+      if this.HotkeysEnabled
+        menuItems.Push(this.NextMenuItem, this.PrevMenuItem)
+      for item in menuItems
+        A_TrayMenu.Disable(item)
+      try this.ScanFiles()
+      finally {
         for item in menuItems
-          A_TrayMenu.Disable(item)
-        try this.ScanFiles()
-        finally {
-          for item in menuItems
-            A_TrayMenu.Enable(item)
+          A_TrayMenu.Enable(item)
+      }
+      if !this.Images.Length
+        throw Error("No supported wallpapers were found in the selected folder.")
+      ; Follow the current image if its position changed. If it was deleted
+      ; (or this is startup), begin at the first image of the shuffled list.
+      this.SelectedImageIndex := 1
+      for index, path in this.Images {
+        if path = this.SelectedImage {
+          this.SelectedImageIndex := Mod(index - 1 + direction + this.Images.Length, this.Images.Length) + 1
+          break
         }
-        if !this.Images.Length
-          throw Error("No supported wallpapers were found in the selected folder.")
-        this.SelectedImageIndex := Random(1, this.Images.Length)
-      } else {
-        this.SelectedImageIndex := Mod(this.SelectedImageIndex - 1 + direction + this.Images.Length, this.Images.Length) + 1
       }
       this.SelectedImage := this.Images[this.SelectedImageIndex]
       this.ApplyWallpaper(this.SelectedImage)
@@ -203,20 +207,24 @@ class WallpaperRandomizer {
   ScanFiles() {
     this.Loading := true
     try {
-      this.Images := []
+      paths := ""
       Loop Files this.ImageDir "\*.*", "FR" {
         if !RegExMatch(A_LoopFileExt, "i)^(bmp|png|jpg|gif)$")
           continue
-        this.Images.Push(A_LoopFileFullPath)
-        count := this.Images.Length
-        ; Insertion shuffle, equivalent to the original pseudo-array algorithm.
-        index := Random(1, count)
-        this.Images[count] := this.Images[index]
-        this.Images[index] := A_LoopFileFullPath
-        if Mod(count, 100) = 0
-          A_IconTip := this.NameString " " this.VersionString " - Loading (" count ")..."
+        paths .= A_LoopFileFullPath "`n"
       }
-      this.FirstRun := false
+      ; Sort first so filesystem enumeration order cannot change the shuffle.
+      paths := RTrim(paths, "`n")
+      this.Images := paths = "" ? [] : StrSplit(Sort(paths, "C"), "`n")
+      seed := this.ShuffleSeed
+      Loop this.Images.Length {
+        ; Local 32-bit generator: restart from the session seed on every scan.
+        seed := (1664525 * seed + 1013904223) & 0xFFFFFFFF
+        index := Mod(seed, A_Index) + 1
+        image := this.Images[A_Index]
+        this.Images[A_Index] := this.Images[index]
+        this.Images[index] := image
+      }
     } finally {
       this.Loading := false
     }

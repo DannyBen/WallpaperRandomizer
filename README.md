@@ -9,6 +9,7 @@ tray menu.
 - Change wallpaper when Windows starts, at regular intervals, or on demand.
 - Browse a randomized list with Next and Previous, with wraparound.
 - Include images from subfolders.
+- Discover added and removed images before every wallpaper change.
 - Pause automatic changes while keeping manual navigation available.
 - Customize hotkeys and refresh intervals.
 - Open, edit, or view properties of the current image.
@@ -32,9 +33,14 @@ Default hotkeys:
 | Next wallpaper | Win+F5 |
 | Previous wallpaper | Shift+Win+F5 |
 
-A new shuffled list is built each time the app starts. Next and Previous move
-through that same list. The folder is scanned only at startup: restart the app
-to pick up added or removed images.
+The folder and its subfolders are scanned before every wallpaper change. One
+random seed per launch keeps the shuffled order identical while the file list
+stays unchanged. Next and Previous walk that order with wraparound, visiting
+every image once per cycle.
+
+Adding, removing, or renaming files can change the order. Navigation continues
+from the current image's new position; if it was deleted, the first image in the
+rebuilt list is shown. Restarting the app creates a new shuffle seed.
 
 ## Configuration
 
@@ -63,7 +69,8 @@ launch prompts for an image folder. Other settings are retained.
 
 Run these scripts with AutoHotkey v2:
 
-- `Test.ahk` checks shuffled navigation, image conversion, intervals, pause,
+- `Test.ahk` checks deterministic rescans, additions and deletions, complete
+  cycles, shuffled navigation, image conversion, intervals, pause,
   configuration, menus, startup shortcuts, and the hotkey dialog.
 - `TestCompiled.ahk` checks the built executable's first-run folder picker and
   clean exit when setup is cancelled. Run `Compile.ahk` first.

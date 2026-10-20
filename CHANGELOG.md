@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Discover added and deleted images by rescanning the folder and subfolders before every automatic or manual wallpaper change.
+- Keep the shuffled order stable for unchanged files using one random seed per launch.
+- Follow the current image after file-list changes; fall back to the first image if it was deleted.
+- Added checks for stable scan order, complete cycles without repeats, file additions and deletions, and empty-folder recovery.
 - Migrated the application and build script to AutoHotkey v2.
 - Preserved the existing shuffled-list navigation, tray controls, hotkeys, and INI settings.
 - Added source and compiled-executable checks for the migration.

@@ -51,6 +51,10 @@ try {
   Assert(app.Images.Length = 2, "Recursive, case-insensitive supported-image scan")
   first := app.SelectedImage
   Assert(app.AppliedImage = first, "First wallpaper applied")
+  originalOrder := app.Images.Clone()
+  app.ScanFiles()
+  for index, path in originalOrder
+    Assert(app.Images[index] == path, "Unchanged scan preserves exact order")
   app.ChangeNowForce(1)
   Assert(app.SelectedImage != first, "Next advances in shuffled list")
   app.ChangeNowForce(-1)
@@ -62,10 +66,49 @@ try {
   app.ChangeNowForce(1)
   Assert(app.SelectedImage = first, "Next wraps")
   FileCopy(root "\images\one.PNG", root "\images\new.png")
+  beforeAddition := app.SelectedImage
   app.ChangeNowForce(1)
-  Assert(app.Images.Length = 2, "Collection stays fixed until restart")
+  Assert(app.Images.Length = 3, "New images are discovered on the next change")
+  app.ChangeNowForce(-1)
+  Assert(app.SelectedImage = beforeAddition, "Navigation follows the current path after an addition")
+  Loop 5
+    FileCopy(root "\images\one.PNG", root "\images\extra-" A_Index ".png")
+  app.ChangeNowForce(1)
+  cycleStart := app.SelectedImage
+  visited := Map()
+  Loop app.Images.Length {
+    app.ChangeNowForce(1)
+    Assert(!visited.Has(app.SelectedImage), "No repeats within a full cycle")
+    visited[app.SelectedImage] := true
+  }
+  Assert(app.SelectedImage = cycleStart && visited.Count = 8, "Cycle visits every image and wraps")
+  originalOrder := app.Images.Clone()
+  ; Recreate a file to change directory enumeration without changing the file set.
+  FileDelete(root "\images\extra-1.png")
+  FileCopy(root "\images\one.PNG", root "\images\extra-1.png")
+  app.ScanFiles()
+  for index, path in originalOrder
+    Assert(app.Images[index] == path, "Filesystem enumeration does not affect order")
+  FileDelete(app.SelectedImage)
+  app.ChangeNowForce(1)
+  Assert(app.Images.Length = 7 && app.SelectedImage = app.Images[1], "Deleted current image falls back to first surviving image")
   FileCopy(root "\output\Wallpaper.bmp", root "\images\original.bmp")
   app.ApplyWallpaper(root "\images\original.bmp")
+  app.ScanFiles()
+  for path in app.Images
+    FileDelete(path)
+  emptyFolderError := false
+  try app.ChangeNowForce(1)
+  catch as err
+    emptyFolderError := InStr(err.Message, "No supported wallpapers") > 0
+  Assert(emptyFolderError && !app.InTheMiddle, "Empty folder reports an error and releases the busy state")
+  fixtureFile := FileOpen(root "\images\recovered.png", "w")
+  fixtureFile.RawWrite(bytes)
+  fixtureFile.Close()
+  app.ChangeNowForce(1)
+  Assert(app.Images.Length = 1, "Next change recovers when images return")
+  app.ChangeNowForce(-1)
+  Assert(app.SelectedImage = app.Images[1], "Single-image collection wraps safely")
   app.ShortcutFile := root "\startup.lnk"
   app.ToggleStartup()
   FileGetShortcut(app.ShortcutFile, &shortcutTarget, &shortcutDir, &shortcutArgs)
@@ -99,7 +142,7 @@ try {
   Assert(SelectHotkey("+#F5") = "+#F5", "Hotkey dialog accepts existing combination")
   SetTimer((*) => ControlClick("Button6", "Hotkey ahk_class AutoHotkeyGUI"), -200)
   Assert(SelectHotkey("^!A") = "^!A", "Hotkey dialog cancels without changing combination")
-  FileAppend("PASS: scan, shuffle navigation, wraparound, fixed collection, PNG conversion, BMP input/output, intervals, pause, INI, startup shortcuts, menus, hotkey dialog.`n", "*")
+  FileAppend("PASS: deterministic rescans, additions/deletions, complete cycles, empty-folder recovery, navigation, conversion, timers, INI, shortcuts, menus, hotkey dialog.`n", "*")
 } catch as err {
   FileAppend("FAIL: " err.Message " (line " err.Line ")`n" err.Stack "`n", "**")
   ExitApp(1)
