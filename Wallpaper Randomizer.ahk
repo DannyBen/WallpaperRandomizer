@@ -2,7 +2,7 @@
 #SingleInstance Force
 
 ; Wallpaper Randomizer - Danny Ben Shitrit (Sector-Seven), 2011
-; Homepage: http://sector-seven.net
+; Homepage: https://sector-seven.com
 ; Contributors: Ashus - http://ashus.ashus.net/
 ; A shuffled list is built once per launch; Next/Previous wrap around it.
 if A_IsCompiled || A_LineFile = A_ScriptFullPath {
@@ -128,7 +128,7 @@ class WallpaperRandomizer {
     tray.Add()
     tray.Add("Run " this.NameString " on Startup", this.Callback("ToggleStartup"))
     tray.Add()
-    tray.Add("Visit Sector-Seven", (*) => Run("http://sector-seven.net"))
+    tray.Add("Visit Sector-Seven", (*) => Run("https://sector-seven.com"))
     tray.Add("About " this.NameString "...", this.AboutCallback)
     tray.Add("Exit " this.NameString, this.ExitCallback)
   }
