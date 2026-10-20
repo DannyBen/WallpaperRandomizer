@@ -151,4 +151,19 @@ Revision History
   
   
 ================================================================================
-  
+
+AutoHotkey v2 source/build notes
+-----------------------------
+  The source and Compile.ahk now require AutoHotkey v2.0 or later.
+  Run Compile.ahk with v2; it uses that runtime as the compiler base.
+  Ahk2Exe is expected in C:\Program Files\AutoHotkey\Compiler.
+  Compilation still clears ImageDir and resets ShowTraytip in the local INI.
+  The compiled executable does not require AutoHotkey to be installed.
+  Keep topng.exe beside the script/executable for image conversion.
+
+  Run Test.ahk with v2 for the migration smoke checks. They use temporary
+  fixtures and do not change the desktop wallpaper or the application's INI.
+
+  Wallpaper behavior is unchanged: scan subfolders once per launch, build
+  one shuffled list, and walk it forwards/backwards with wraparound.
+  Files added after launch are not discovered yet.
