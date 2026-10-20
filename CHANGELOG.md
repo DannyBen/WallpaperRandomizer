@@ -2,6 +2,8 @@
 
 ## 0.50 - 2026-10-20
 
+- Use the native Windows wallpaper API instead of topng.exe; BMP, JPG, PNG, and GIF load directly, without temporary BMP conversion. Requires Windows 8 or later.
+- Removed the converter from the release ZIP and retired the TempDir setting; existing INI files still work.
 - Replaced the original icon with an orange sunrise landscape, with sizes for the system tray and Explorer.
 - Discover added and deleted images by rescanning the folder and subfolders before every automatic or manual wallpaper change.
 - Keep the shuffled order stable for unchanged files using one random seed per launch.
@@ -12,7 +14,7 @@
 - Verified the migration with source and compiled-executable checks.
 - Converted the readme to Markdown and moved revision history into this changelog.
 - Updated homepage links to https://sector-seven.com.
-- Added Release.ahk to compile the application and package the executable, configuration, converter, documentation, and license into a ZIP.
+- Added Release.ahk to compile the application and package the executable, configuration, documentation, and license into a ZIP.
 
 ## 0.40 - 2011-07-05
 

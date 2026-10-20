@@ -19,12 +19,11 @@ Supported image formats: BMP, PNG, JPG, and GIF.
 
 ## Getting started
 
-Keep `Wallpaper Randomizer.exe` and `topng.exe` in the same folder, then run
-`Wallpaper Randomizer.exe`. On first launch, select your wallpaper folder.
+Run `Wallpaper Randomizer.exe`. On first launch, select your wallpaper folder.
 Right-click the tray icon for settings and other actions.
 
-The compiled executable does not require AutoHotkey to be installed. To run the
-source instead, use AutoHotkey v2.0 or later and keep `topng.exe` beside the script.
+Requires Windows 8 or later. The compiled executable needs no additional tools.
+To run the source instead, use AutoHotkey v2.0 or later.
 
 Default hotkeys:
 
@@ -50,11 +49,11 @@ settings can be changed through the tray menu. Manual INI edits require a restar
 - `Interval` is in minutes: `0.5` means 30 seconds; `0` disables automatic changes.
 - `ImageDir` can be an absolute path or a path relative to the application folder.
 - `Intervals` sets the comma-separated list of intervals shown in the tray menu.
-- `TempDir` sets the folder used for BMP conversion. It supports `%A_Temp%` and
-  `%A_ScriptDir%`.
 - `HotkeyNext`, `HotkeyPrev`, and `HotkeysEnabled` control keyboard shortcuts.
 
-Image conversion uses the bundled [ToPNG utility](http://www.bcheck.net/).
+Images are loaded directly through the native Windows wallpaper API, without
+conversion or temporary BMP files. The old `TempDir` setting is no longer used;
+existing INI files remain compatible.
 
 ## Building
 
@@ -72,7 +71,7 @@ Run `Release.ahk` with AutoHotkey v2 to compile the app and create
 An existing release ZIP is replaced only after the new archive is created.
 
 The ZIP contains `Wallpaper Randomizer.exe`, `Wallpaper Randomizer.ini`,
-`topng.exe`, `README.md`, `CHANGELOG.md`, and `LICENSE` at its top level.
+`README.md`, `CHANGELOG.md`, and `LICENSE` at its top level.
 The INI comes from the local build, so review its settings before distributing.
 
 ## History and credits

@@ -6,7 +6,7 @@ exitCode := RunWait('"' A_AhkPath '" "' A_ScriptDir '\Compile.ahk"')
 if exitCode != 0
   throw Error("Compilation failed (exit code " exitCode ").")
 
-files := ["Wallpaper Randomizer.exe", "Wallpaper Randomizer.ini", "topng.exe", "README.md", "CHANGELOG.md", "LICENSE"]
+files := ["Wallpaper Randomizer.exe", "Wallpaper Randomizer.ini", "README.md", "CHANGELOG.md", "LICENSE"]
 sources := ""
 for name in files {
   if !FileExist(name)

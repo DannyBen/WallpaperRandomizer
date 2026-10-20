@@ -30,9 +30,6 @@ class WallpaperRandomizer {
     this.ImageDir := this.Read("ImageDir", "")
     this.ShowTraytip := this.Read("ShowTraytip", 1) + 0
     this.IntervalString := this.Read("Intervals", "2,5,10,15,20,30,45,60,90,120,180,240")
-    this.TempDir := this.ExpandPath(this.Read("TempDir", A_ScriptDir))
-    if !DirExist(this.TempDir)
-      this.TempDir := A_ScriptDir
     this.HotkeyNext := this.Read("HotkeyNext", "#F5")
     this.HotkeyPrev := this.Read("HotkeyPrev", "+#F5")
     this.HotkeysEnabled := this.Read("HotkeysEnabled", 1) + 0
@@ -48,21 +45,7 @@ class WallpaperRandomizer {
   Callback(method, args*) => ObjBindMethod(this, method, args*)
   Quote(path) => '"' path '"'
 
-  ExpandPath(path) {
-    path := StrReplace(path, "%A_ScriptDir%", A_ScriptDir)
-    path := StrReplace(path, "%A_Temp%", A_Temp)
-    path := StrReplace(path, "%A_WorkingDir%", A_WorkingDir)
-    ; Preserve support for environment variables in the old TempDir setting.
-    while RegExMatch(path, "%([^%]+)%", &match) {
-      value := EnvGet(match[1])
-      path := StrReplace(path, match[0], value)
-    }
-    return path
-  }
-
   Start() {
-    if !FileExist("topng.exe")
-      this.Fatal("Unable to find a required file: topng.exe`nAborting")
     this.BuildMenus()
     if this.HotkeysEnabled {
       Hotkey(this.HotkeyNext, this.Callback("ChangeNowForce", 1))
@@ -188,7 +171,7 @@ class WallpaperRandomizer {
         }
       }
       this.SelectedImage := this.Images[this.SelectedImageIndex]
-      this.ApplyWallpaper(this.SelectedImage)
+      this.SetWallpaper(this.SelectedImage)
       A_TrayMenu.Enable("Current Image")
       SplitPath(this.SelectedImage, &fileName, &directory)
       SplitPath(directory, &folderName)
@@ -230,27 +213,10 @@ class WallpaperRandomizer {
     }
   }
 
-  ApplyWallpaper(selectedImage) {
-    SplitPath(selectedImage, , , &extension)
-    extension := StrLower(extension)
-    newImage := this.TempDir "\Wallpaper." extension
-    FileCopy(selectedImage, newImage, true)
-    if extension != "bmp" {
-      if !FileExist("topng.exe")
-        throw Error("Unable to find a required file: topng.exe")
-      exitCode := RunWait(this.Quote(A_ScriptDir "\topng.exe") " " this.Quote(newImage) " BMP", this.TempDir, "Hide")
-      if exitCode != 0
-        throw Error("Image conversion failed (exit code " exitCode ").")
-      FileDelete(newImage)
-    }
-    finalPaper := this.TempDir "\Wallpaper.bmp"
-    Sleep(100)
-    this.SetWallpaper(finalPaper)
-  }
-
-  SetWallpaper(finalPaper) {
-    if !DllCall("SystemParametersInfoW", "UInt", 0x14, "UInt", 0, "Str", finalPaper, "UInt", 1)
-      throw OSError()
+  SetWallpaper(path) {
+    ; IDesktopWallpaper (Windows 8+): let Windows load the original image.
+    static desktop := ComObject("{C2CF3110-460E-4FC1-B9D0-8A1C0C9CC4BD}", "{B92B56A9-8B55-4E14-9A89-0199BBB6F93B}")
+    ComCall(3, desktop, "Ptr", 0, "Str", path) ; SetWallpaper on all monitors.
   }
 
   ChangeInterval(itemName, *) {
@@ -327,10 +293,6 @@ class WallpaperRandomizer {
       ExitApp()
   }
 
-  Fatal(message) {
-    MsgBox("An error has occurred.`n" message, "Error", 16)
-    ExitApp(1)
-  }
 }
 
 SelectHotkey(originalKey := "") {
